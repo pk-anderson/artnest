@@ -4,11 +4,13 @@ import { Request, Response } from "express";
 export interface UserHandler {
     createUser(req: Request, res: Response): Promise<void>;
     listAllUsers(req: Request, res: Response): Promise<void>;
+    login(req: Request, res: Response): Promise<void>;
 }
 
 export interface UserService {
     createUser(user: User): Promise<APIResponse>;
-    listAllUsers(): Promise<APIResponse>
+    listAllUsers(): Promise<APIResponse>;
+    authenticate(email: string, password: string): Promise<APIResponse>;
 }
 
 export interface UserRepository {

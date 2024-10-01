@@ -1,8 +1,9 @@
 import { APIResponse } from './../interfaces/APIResponse';
 import { createUserRepository } from "../repositories/UserRepository";
 import { User, UserService, UserRepository } from "../interfaces/User";
-import { encryptPassword } from '../utils/password';
+import { encryptPassword, checkPassword } from '../utils/password';
 import { generateUUID } from '../utils/generateUUID';
+import jwt from 'jsonwebtoken';
 
 function validateUserData(user: User): { valid: boolean, errors: string[] } {
     const errors: string[] = [];
@@ -96,6 +97,67 @@ export class UserServiceImpl implements UserService {
             }
         }     
     }
+
+    async authenticate(email: string, password: string): Promise<APIResponse> {
+    try {
+        if (!email || !password) {
+            return {
+                success: false, 
+                data: {
+                    error: `Email and Password are required.`
+                },
+                statusCode: 400
+            }
+        }
+    
+        const user = await this.userRepository.getUserByEmail(email);
+        if (!user) {
+            return {
+                success: false, 
+                data: {
+                    error: `User with this email not found.`
+                },
+                statusCode: 404
+            }
+        }
+    
+        const isPasswordValid = await checkPassword(password, user.password);
+        if (!isPasswordValid) {
+            return {
+                success: false, 
+                data: {
+                    error: `Invalid credentials.`
+                },
+                statusCode: 401
+            }
+        }
+        
+        const token = jwt.sign(
+          { id: user.id, name: user.username, email: user.email },
+          process.env.JWT_SECRET as string, 
+          { expiresIn: '24h' }
+        );
+    
+        const { password: passwordHash, ...userWithoutPassword } = user;
+
+        return {
+            success: true, 
+            data: {
+                token: token,
+                user: userWithoutPassword
+            },
+            statusCode: 200
+        }
+    } catch (error) {
+        return {
+            success: false,
+            data: {
+                error: `Error authenticating user on service layer: ${error}`
+            },
+            statusCode: 500
+        }
+    }
+  }
 }
 
 export function createUserService(): UserService {

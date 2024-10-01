@@ -36,13 +36,30 @@ export class UserHandlerImpl implements UserHandler {
             const result = await this.userService.listAllUsers()
             res.status(result.statusCode).json({
                 success: result.success,
-                users: result.success ? result.data?.users : undefined,
+                data: result.success ? result.data?.users : undefined,
                 error: !result.success ? result.data?.error : undefined
             });
         } catch (error) {
             res.status(500).json({ 
                 success: false,
                 error: `Internal error on Handler in listAllUsers: ${error}` 
+            });
+        }
+    }
+
+    async login(req: Request, res: Response): Promise<void> {
+        try {
+            const { email, password } = req.body
+            const result = await this.userService.authenticate(email, password)
+            res.status(result.statusCode).json({
+                success: result.success,
+                data: result.success ? result.data : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in login: ${error}` 
             });
         }
     }

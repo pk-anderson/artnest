@@ -10,6 +10,7 @@ const userHandler = createUserHandler();
 const router = express.Router();
 
 router.post('/signup', upload.single('file'), (req, res) => userHandler.createUser(req, res));
+router.post('/login', (req, res) => userHandler.login(req, res));
 router.get('/list', (req, res) => userHandler.listAllUsers(req, res));
 
 export default router;
