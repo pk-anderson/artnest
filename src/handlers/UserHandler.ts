@@ -31,6 +31,23 @@ export class UserHandlerImpl implements UserHandler {
         }
     }
 
+    async findUser(req: Request, res: Response): Promise<void> {
+        try {
+            const id = req.params.id
+            const result = await this.userService.findUser(id)
+            res.status(result.statusCode).json({
+                success: result.success,
+                data: result.success ? result.data?.user : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in findUser: ${error}` 
+            });
+        }
+    }
+
     async listAllUsers(req: Request, res: Response): Promise<void> {
         try {
             const result = await this.userService.listAllUsers()
@@ -64,13 +81,37 @@ export class UserHandlerImpl implements UserHandler {
         }
     }
 
+    async updateUser(req: Request, res: Response): Promise<void> {
+        try {
+            const decodedToken = req.decodedToken  
+            const user: User = req.body
+            const profilePicture = req.file;
+            if (profilePicture) {
+            user.profile_picture = profilePicture.buffer
+            }
+
+            const result = await this.userService.updateUser(decodedToken!.id, user)
+            res.status(result.statusCode).json({
+                success: result.success,
+                data: result.success ? result.data?.user : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in updateUser: ${error}` 
+            });
+        }
+    }
+
+
     async activateUser(req: Request, res: Response): Promise<void> {
         try {
             const decodedToken = req.decodedToken         
             const result = await this.userService.updateUserStatus(decodedToken!.id, true)
             res.status(result.statusCode).json({
                 success: result.success,
-                data: result.success ? result.data?.message : undefined,
+                message: result.success ? result.data?.message : undefined,
                 error: !result.success ? result.data?.error : undefined
             });
         } catch (error) {
@@ -87,7 +128,7 @@ export class UserHandlerImpl implements UserHandler {
             const result = await this.userService.updateUserStatus(decodedToken!.id, false)
             res.status(result.statusCode).json({
                 success: result.success,
-                data: result.success ? result.data?.message : undefined,
+                message: result.success ? result.data?.message : undefined,
                 error: !result.success ? result.data?.error : undefined
             });
         } catch (error) {

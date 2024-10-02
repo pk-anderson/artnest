@@ -12,7 +12,9 @@ const router = express.Router();
 
 router.post('/signup', upload.single('file'), (req, res) => userHandler.createUser(req, res));
 router.post('/login', (req, res) => userHandler.login(req, res));
+router.get('/find/:id', validateToken, (req, res) => userHandler.findUser(req, res));
 router.get('/list', (req, res) => userHandler.listAllUsers(req, res));
+router.put('/update', validateToken, upload.single('file'), (req, res) => userHandler.updateUser(req, res));
 router.put('/activate', validateToken, (req, res) => userHandler.activateUser(req, res));
 router.put('/deactivate', validateToken, (req, res) => userHandler.deactivateUser(req, res));
 

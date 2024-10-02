@@ -88,6 +88,41 @@ export class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    async updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+        try {
+            const keys = Object.keys(updates); 
+            const values = Object.values(updates); 
+            
+            if (keys.length === 0) {
+                return null;
+            }
+    
+            keys.push('updated_at');
+            values.push(new Date()); 
+            const setQuery = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
+    
+            const query = `
+                UPDATE tb_users
+                SET ${setQuery}
+                WHERE id = $${keys.length + 1}
+                RETURNING *;
+            `;
+    
+            const result = await pool.query(query, [...values, id]);
+    
+            if (result.rows.length > 0) {
+                return result.rows[0]; 
+            }
+            return null;
+            
+        } catch (error) {
+            console.error(`Error on updateUser: ${error}`);
+            throw new Error(`Error updating user in the database.`);
+        }
+    }
+    
+    
+
     async changeUserStatus(id: string, status: boolean): Promise<void> {
         try {
             const changeUserStatusQuery = `

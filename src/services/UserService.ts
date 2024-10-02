@@ -138,7 +138,7 @@ export class UserServiceImpl implements UserService {
           { expiresIn: '24h' }
         );
     
-        const { password: passwordHash, ...userWithoutPassword } = user;
+        const { password: passwordHash, ...userWithoutPassword } = user
 
         return {
             success: true, 
@@ -158,6 +158,83 @@ export class UserServiceImpl implements UserService {
         }
     }
   }
+
+  async findUser(id:string): Promise<APIResponse> {
+      try {
+          const user = await this.userRepository.getUserById(id)
+          if (!user || !user.is_active) {
+            return {
+                success: false,
+                data: {
+                    error: `User not found.`
+                },
+                statusCode: 404
+            }
+          }
+
+          return {
+            success: true, 
+            data: {
+                user: user
+            },
+            statusCode: 200
+        }
+      } catch (error) {
+        return {
+            success: false,
+            data: {
+                error: `Error finding user on service layer: ${error}`
+            },
+            statusCode: 500
+        }
+      }
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<APIResponse> {
+    try {
+        const user = await this.userRepository.getUserById(id);
+        if (!user) {
+            return {
+                success: false,
+                data: {
+                    error: `User not found`
+                },
+                statusCode: 404
+            };
+        }
+
+        const updatedUser = await this.userRepository.updateUser(id, updates)
+
+        if (!updatedUser) {
+            return {
+                success: false,
+                data: {
+                    error: `No changes were made.`
+                },
+                statusCode: 400  
+            };
+        }
+        
+        const { password, ...userWithoutPassword } = updatedUser;
+
+        return {
+            success: true,
+            data: {
+                user: userWithoutPassword
+            },
+            statusCode: 200
+        };
+    } catch (error) {
+        return {
+            success: false,
+            data: {
+                error: `Error updating user: ${error}`
+            },
+            statusCode: 500
+        };
+    }
+}
+
 
   async updateUserStatus(id: string, status: boolean): Promise<APIResponse> {
     try {
