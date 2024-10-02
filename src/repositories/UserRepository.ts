@@ -121,7 +121,20 @@ export class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    
+    async updatePassword(id: string, password: string): Promise<void> {
+        try {
+            const updatePasswordQuery = `
+                UPDATE tb_users
+                SET password = $1
+                WHERE id = $2;
+            `;
+            const values = [password, id]
+            await pool.query(updatePasswordQuery, values)     
+        } catch (error) {
+            console.error(`Error on updatePassword: ${error}`);
+            throw new Error(`Error updating password in the database.`);
+        }
+    }
 
     async changeUserStatus(id: string, status: boolean): Promise<void> {
         try {

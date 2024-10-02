@@ -104,6 +104,23 @@ export class UserHandlerImpl implements UserHandler {
         }
     }
 
+    async changePassword(req: Request, res: Response): Promise<void> {
+        try {
+            const decodedToken = req.decodedToken
+            const { password , newPassword } = req.body
+            const result = await this.userService.changePassword(decodedToken!.email, password, newPassword) 
+            res.status(result.statusCode).json({
+                success: result.success,
+                message: result.success ? result.data?.message : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in changePassword: ${error}` 
+            });
+        }
+    }
 
     async activateUser(req: Request, res: Response): Promise<void> {
         try {

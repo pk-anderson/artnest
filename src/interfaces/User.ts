@@ -7,6 +7,7 @@ export interface UserHandler {
     listAllUsers(req: Request, res: Response): Promise<void>;
     login(req: Request, res: Response): Promise<void>;
     updateUser(req: Request, res: Response): Promise<void>
+    changePassword(req: Request, res: Response): Promise<void>
     activateUser(req: Request, res: Response): Promise<void> 
     deactivateUser(req: Request, res: Response): Promise<void> 
 }
@@ -17,6 +18,7 @@ export interface UserService {
     listAllUsers(): Promise<APIResponse>;
     authenticate(email: string, password: string): Promise<APIResponse>;
     updateUser(id: string, updates: Partial<User>): Promise<APIResponse>
+    changePassword(email: string, password: string, newPassword: string): Promise<APIResponse> 
     updateUserStatus(id: string, status: boolean): Promise<APIResponse> 
 }
 
@@ -26,6 +28,7 @@ export interface UserRepository {
     getUserByEmail(email: string): Promise<User | null>;
     getAllUsers(): Promise<User[]>;
     updateUser(id: string, updates: Partial<User>): Promise<User | null>
+    updatePassword(id: string, password: string): Promise<void>
     changeUserStatus(id: string, status: boolean): Promise<void>
 }
 

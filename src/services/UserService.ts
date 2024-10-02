@@ -111,7 +111,7 @@ export class UserServiceImpl implements UserService {
         }
     
         const user = await this.userRepository.getUserByEmail(email);
-        if (!user) {
+        if (!user || !user.is_active) {
             return {
                 success: false, 
                 data: {
@@ -193,7 +193,7 @@ export class UserServiceImpl implements UserService {
   async updateUser(id: string, updates: Partial<User>): Promise<APIResponse> {
     try {
         const user = await this.userRepository.getUserById(id);
-        if (!user) {
+        if (!user || !user.is_active) {
             return {
                 success: false,
                 data: {
@@ -235,6 +235,59 @@ export class UserServiceImpl implements UserService {
     }
 }
 
+    async changePassword(email: string, password: string, newPassword: string): Promise<APIResponse> {
+        try {
+            const user = await this.userRepository.getUserByEmail(email);
+            if (!user || !user.is_active) {
+                return {
+                    success: false,
+                    data: {
+                        error: `User not found`
+                    },
+                    statusCode: 404
+                };
+            }
+            
+            const check = await checkPassword(password, user.password)
+            if (!check) {
+                return {
+                    success: false,
+                    data: {
+                        error: `Invalid credentials`
+                    },
+                    statusCode: 403
+                };
+            }
+    
+            if (!newPassword) {
+                return {
+                    success: false,
+                    data: {
+                        error: `New password is required.`
+                    },
+                    statusCode: 400
+                };
+            }
+    
+            const hashedPassword = await encryptPassword(newPassword) 
+            await this.userRepository.updatePassword(user.id, hashedPassword) 
+            return {
+                success: true,
+                data: {
+                    message: 'Password updated successfully'
+                },
+                statusCode: 200
+            };
+        } catch (error) {
+            return {
+                success: false,
+                data: {
+                    error: `Error updating password: ${error}`
+                },
+                statusCode: 500
+            };
+        }
+    }
 
   async updateUserStatus(id: string, status: boolean): Promise<APIResponse> {
     try {
