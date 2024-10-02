@@ -63,6 +63,40 @@ export class UserHandlerImpl implements UserHandler {
             });
         }
     }
+
+    async activateUser(req: Request, res: Response): Promise<void> {
+        try {
+            const decodedToken = req.decodedToken         
+            const result = await this.userService.updateUserStatus(decodedToken!.id, true)
+            res.status(result.statusCode).json({
+                success: result.success,
+                data: result.success ? result.data?.message : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in activateUser: ${error}` 
+            });
+        }
+    }
+
+    async deactivateUser(req: Request, res: Response): Promise<void> {
+        try {
+            const decodedToken = req.decodedToken         
+            const result = await this.userService.updateUserStatus(decodedToken!.id, false)
+            res.status(result.statusCode).json({
+                success: result.success,
+                data: result.success ? result.data?.message : undefined,
+                error: !result.success ? result.data?.error : undefined
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false,
+                error: `Internal error on Handler in activateUser: ${error}` 
+            });
+        }
+    }
 }
 
 export function createUserHandler(): UserHandler {

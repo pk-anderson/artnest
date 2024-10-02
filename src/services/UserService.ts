@@ -158,6 +158,46 @@ export class UserServiceImpl implements UserService {
         }
     }
   }
+
+  async updateUserStatus(id: string, status: boolean): Promise<APIResponse> {
+    try {
+            const user = await this.userRepository.getUserById(id)
+            if (!user) {
+                return {
+                    success: false,
+                    data: {
+                        error: 'User not found'
+                    },
+                    statusCode: 404
+                }
+            }
+            if (user.is_active == status) {
+                return {
+                    success: false,
+                    data: {
+                        error: status ? 'User is already active' : 'User is already deactivated'
+                    },
+                    statusCode: 400
+                }
+            }
+            await this.userRepository.changeUserStatus(id, status)
+            return {
+                success: true,
+                data: {
+                    message: status ? 'User activated successfully' : 'User deactivated successfully'
+                },
+                statusCode: 200
+            }
+        } catch (error) {
+            return {
+                success: false,
+                data: {
+                    error: `Error updating user status on service layer: ${error}`
+                },
+                statusCode: 500
+            }
+        }     
+    }
 }
 
 export function createUserService(): UserService {

@@ -31,6 +31,23 @@ export class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    async getUserById(id: string): Promise<User | null> {
+        try {
+            const getUserQuery = `Select * FROM tb_users WHERE id = $1` 
+            const values = [id]
+            const result = await pool.query(getUserQuery, values)
+
+            if (result.rows.length > 0) {
+                return result.rows[0] as User
+            }
+
+            return null
+        } catch (error) {
+            console.error(`Error on getUserById: ${error}`)
+            throw new Error(`Error retrieving user from the database.`)
+        }
+    }
+
     async getUserByEmail(email: string): Promise<User | null> {
         try {
             const getUserQuery = `Select * FROM tb_users WHERE email = $1` 
@@ -60,7 +77,7 @@ export class UserRepositoryImpl implements UserRepository {
                 profile_picture,
                 created_at,
                 updated_at
-            FROM tb_users`
+            FROM tb_users WHERE is_active = true`
             
             const result = await pool.query(getAllUsersQuery)
 
@@ -68,6 +85,21 @@ export class UserRepositoryImpl implements UserRepository {
         } catch (error) {
             console.error(`Error on getAllUsers: ${error}`)
             throw new Error(`Error retrieving users from the database.`)
+        }
+    }
+
+    async changeUserStatus(id: string, status: boolean): Promise<void> {
+        try {
+            const changeUserStatusQuery = `
+            UPDATE tb_users
+            SET is_active = $1, updated_at = NOW()
+            WHERE id = $2
+            `
+            const values = [status, id]
+            await pool.query(changeUserStatusQuery, values)
+        } catch (error) {
+            console.error(`Error on changeUserStatus: ${error}`)
+            throw new Error(`Error changing user status.`)
         }
     }
 }
