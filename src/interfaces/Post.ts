@@ -14,10 +14,10 @@ export interface PostService {
 export interface PostRepository {
     createPost(post: Post): Promise<Post | null>
     getPostById(id: string): Promise<Post | null>
-    getUserPosts(id: string, limit: number, offset: number, visibility?: string): Promise<Post[]>
-    countUserPosts(id: string, visibility?: string): Promise<number>
+    getUserPosts(id: string, limit: number, offset: number, visibility?: VisibilityStatus): Promise<Post[]>
+    countUserPosts(id: string, visibility?: VisibilityStatus): Promise<number>
     updatePost(id: string, description: string): Promise<Post | null> 
-    updatePostVisibility(id: string, visibility: string): Promise<Post | null>
+    updatePostVisibility(id: string, visibility: VisibilityStatus): Promise<Post | null>
     deletePost(id: string): Promise<void> 
 }
 
