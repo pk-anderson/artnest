@@ -77,16 +77,24 @@ export class UserServiceImpl implements UserService {
         }
     }
 
-    async listAllUsers(): Promise<APIResponse> {
+    async listUsers(page: number, limit: number, text: string): Promise<APIResponse> {
         try {
-            const users = await this.userRepository.getAllUsers()
+            const offset = (page - 1) * limit
+            const users = await this.userRepository.getUsers(limit, offset, text);
+            
+            const totalUsers = await this.userRepository.countUsers(text);
             return {
                 success: true,
                 data: {
-                    users
+                    users,  
+                    pagination: {
+                        page,     
+                        limit,      
+                        totalResults: totalUsers 
+                    }
                 },
                 statusCode: 200
-            }
+            };
         } catch (error) {
             return {
                 success: false,

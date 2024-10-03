@@ -48,18 +48,22 @@ export class UserHandlerImpl implements UserHandler {
         }
     }
 
-    async listAllUsers(req: Request, res: Response): Promise<void> {
+    async listUsers(req: Request, res: Response): Promise<void> {
         try {
-            const result = await this.userService.listAllUsers()
+            const text = req.query.text as string | ''
+            const page = parseInt(req.query.page as string) || 1
+            const limit = parseInt(req.query.limit as string) || 10
+
+            const result = await this.userService.listUsers(page, limit, text)
             res.status(result.statusCode).json({
                 success: result.success,
-                data: result.success ? result.data?.users : undefined,
+                data: result.success ? result.data : undefined,
                 error: !result.success ? result.data?.error : undefined
             });
         } catch (error) {
             res.status(500).json({ 
                 success: false,
-                error: `Internal error on Handler in listAllUsers: ${error}` 
+                error: `Internal error on Handler in listUsers: ${error}` 
             });
         }
     }

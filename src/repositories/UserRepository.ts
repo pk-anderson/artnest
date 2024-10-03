@@ -65,9 +65,10 @@ export class UserRepositoryImpl implements UserRepository {
         }
     }
 
-    async getAllUsers(): Promise<User[]> {
+    async getUsers(limit: number, offset: number, text: string): Promise<User[]> {
         try {
-            const getAllUsersQuery = `
+            const queryParams: any[] = [];
+            let getUsersQuery = `
             SELECT 
                 id,
                 email,
@@ -77,15 +78,36 @@ export class UserRepositoryImpl implements UserRepository {
                 profile_picture,
                 created_at,
                 updated_at
-            FROM tb_users WHERE is_active = true`
+            FROM tb_users WHERE 1=1 AND is_active = true`
+
+            if (text) {
+                getUsersQuery += ` AND (username ILIKE $1 OR email ILIKE $1)`;
+                queryParams.push(`%${text}%`);
+            }
             
-            const result = await pool.query(getAllUsersQuery)
+            getUsersQuery += ` ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+            queryParams.push(limit, offset);
+
+            const result = await pool.query(getUsersQuery, queryParams)
 
             return result.rows as User[];
         } catch (error) {
-            console.error(`Error on getAllUsers: ${error}`)
+            console.error(`Error on getUsers: ${error}`)
             throw new Error(`Error retrieving users from the database.`)
         }
+    }
+
+    async countUsers(text: string): Promise<number> {
+        const queryParams: any[] = [];
+        let query = 'SELECT COUNT(*) FROM tb_users WHERE 1=1 AND is_active = true';
+
+        if (text) {
+            query += ` AND (username ILIKE $1 OR email ILIKE $1)`;
+            queryParams.push(`%${text}%`);
+        }
+
+        const result = await pool.query(query, queryParams);
+        return parseInt(result.rows[0].count, 10);
     }
 
     async updateUser(id: string, updates: Partial<User>): Promise<User | null> {
