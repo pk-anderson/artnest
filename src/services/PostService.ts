@@ -106,7 +106,7 @@ export class PostServiceImpl implements PostService {
         }
     }
 
-    async updatePost(id: string, description: string): Promise<APIResponse> {
+    async updatePost(id: string, userId: string, description: string): Promise<APIResponse> {
         try {
             if (!id || !description) {
                 return {
@@ -126,6 +126,16 @@ export class PostServiceImpl implements PostService {
                         error: `Post not found.`
                     },
                     statusCode: 404
+                }
+            }
+
+            if (userId != post.user_id) {
+                return {
+                    success: false, 
+                    data: {
+                        error: `User not authorized to update post.`
+                    },
+                    statusCode: 403
                 }
             }
 
@@ -149,7 +159,7 @@ export class PostServiceImpl implements PostService {
         }
     }
 
-    async changeVisibility(id: string, visibility: VisibilityStatus): Promise<APIResponse> {
+    async changeVisibility(id: string, userId: string, visibility: VisibilityStatus): Promise<APIResponse> {
         try {
             const post = await this.postRepository.getPostById(id)
             if (!post) {
@@ -159,6 +169,16 @@ export class PostServiceImpl implements PostService {
                         error: `Post not found.`
                     },
                     statusCode: 404
+                }
+            }
+
+            if (userId != post.user_id) {
+                return {
+                    success: false, 
+                    data: {
+                        error: `User not authorized to update post.`
+                    },
+                    statusCode: 403
                 }
             }
 
@@ -191,7 +211,7 @@ export class PostServiceImpl implements PostService {
         }
     }
 
-    async removePost(id: string): Promise<APIResponse> {
+    async removePost(id: string, userId: string): Promise<APIResponse> {
         try {
             const post = await this.postRepository.getPostById(id)
             if (!post) {
@@ -201,6 +221,16 @@ export class PostServiceImpl implements PostService {
                         error: `Post not found.`
                     },
                     statusCode: 404
+                }
+            }
+
+            if (userId != post.user_id) {
+                return {
+                    success: false, 
+                    data: {
+                        error: `User not authorized to remove post.`
+                    },
+                    statusCode: 403
                 }
             }
 

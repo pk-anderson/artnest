@@ -5,15 +5,20 @@ export type VisibilityStatus = 'public' | 'private' | 'friends-only';
 
 export interface PostHandler {
     createPost(req: Request, res: Response): Promise<void>
+    findPost(req: Request, res: Response): Promise<void>
+    listPosts(req: Request, res: Response): Promise<void>
+    updatePost(req: Request, res: Response): Promise<void> 
+    changePostVisibility(req: Request, res: Response): Promise<void>
+    removePost(req:Request, res:Response): Promise<void>
 }
 
 export interface PostService {
     createPost(post: Post): Promise<APIResponse>
     findPost(id: string): Promise<APIResponse>
     listPosts(id: string, limit: number, page: number, visibility?: VisibilityStatus): Promise<APIResponse>
-    updatePost(id: string, description: string): Promise<APIResponse> 
-    changeVisibility(id: string, visibility: VisibilityStatus): Promise<APIResponse> 
-    removePost(id: string): Promise<APIResponse>
+    updatePost(id: string, userId: string, description: string): Promise<APIResponse> 
+    changeVisibility(id: string, userId: string, visibility: VisibilityStatus): Promise<APIResponse>
+    removePost(id: string, userId: string): Promise<APIResponse>
 }
 
 export interface PostRepository {
