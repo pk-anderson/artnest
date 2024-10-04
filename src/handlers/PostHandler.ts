@@ -63,7 +63,7 @@ export class PostHandlerImpl implements PostHandler {
             const userId = req.params.userId
             const page = parseInt(req.query.page as string) || 1
             const limit = parseInt(req.query.limit as string) || 10
-            const visibility = req.body.visibility as string;  
+            const visibility = req.query.visibility as string;  
    
             if (!visibility || !isValidVisibility(visibility)) {
                 res.status(400).json({
@@ -75,7 +75,7 @@ export class PostHandlerImpl implements PostHandler {
     
             const visibilityStatus: VisibilityStatus = visibility; 
     
-            const result = await this.postService.listPosts(userId, page, limit, visibilityStatus)
+            const result = await this.postService.listPosts(userId, limit, page, visibilityStatus)
             res.status(result.statusCode).json({
                 success: result.success,
                 data: result.success ? result.data : undefined,

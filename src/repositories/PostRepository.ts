@@ -33,7 +33,7 @@ export class PostRepositoryImpl implements PostRepository {
 
     async getPostById(id: string): Promise<Post | null> {
         try {
-            const getPostQuery = `Select * FROM tb_posts WHERE id = $1` 
+            const getPostQuery = `Select * FROM tb_posts WHERE id = $1 AND deleted_at IS NULL` 
             const queryParams = [id]
             const result = await pool.query(getPostQuery, queryParams)
 
