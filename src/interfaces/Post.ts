@@ -9,6 +9,11 @@ export interface PostHandler {
 
 export interface PostService {
     createPost(post: Post): Promise<APIResponse>
+    findPost(id: string): Promise<APIResponse>
+    listPosts(id: string, limit: number, page: number, visibility?: VisibilityStatus): Promise<APIResponse>
+    updatePost(id: string, description: string): Promise<APIResponse> 
+    changeVisibility(id: string, visibility: VisibilityStatus): Promise<APIResponse> 
+    removePost(id: string): Promise<APIResponse>
 }
 
 export interface PostRepository {
