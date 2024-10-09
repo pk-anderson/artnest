@@ -50,26 +50,22 @@ export class PostRepositoryImpl implements PostRepository {
 
     async getUserPosts(id: string, limit: number, offset: number, visibility?: VisibilityStatus): Promise<Post[]> {
         try {
-            const queryParams: any[] = [];
+            const queryParams: any[] = [id];
             let getUserPostsQuery = `
                 SELECT *
                 FROM tb_posts
                 WHERE user_id = $1
                   AND deleted_at IS NULL
             `;
-    
-            queryParams.push(id);
-            if (visibility) {
+            if (visibility && visibility !== 'all') {
                 getUserPostsQuery += ` AND visibility_status = $2`;
                 queryParams.push(visibility);
             }
     
             getUserPostsQuery += ` ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
-    
             queryParams.push(limit, offset);
-
-            const result = await pool.query(getUserPostsQuery, queryParams);
     
+            const result = await pool.query(getUserPostsQuery, queryParams);
             return result.rows as Post[];
         } catch (error) {
             console.error(`Error on getUserPosts: ${error}`);
@@ -79,6 +75,7 @@ export class PostRepositoryImpl implements PostRepository {
     
     async countUserPosts(id: string, visibility?: VisibilityStatus): Promise<number> {
         try {
+            const queryParams: any[] = [id];
             let countUserPostsQuery = `
                 SELECT COUNT(*)
                 FROM tb_posts
@@ -86,8 +83,7 @@ export class PostRepositoryImpl implements PostRepository {
                   AND deleted_at IS NULL
             `;
     
-            const queryParams = [id];
-            if (visibility) {
+            if (visibility && visibility !== 'all') {
                 countUserPostsQuery += ` AND visibility_status = $2`;
                 queryParams.push(visibility);
             }

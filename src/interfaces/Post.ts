@@ -1,7 +1,7 @@
 import { APIResponse } from "./APIResponse";
 import { Request, Response } from "express";
 
-export type VisibilityStatus = 'public' | 'private' | 'friends-only';
+export type VisibilityStatus = 'public' | 'private' | 'all';
 
 export interface PostHandler {
     createPost(req: Request, res: Response): Promise<void>

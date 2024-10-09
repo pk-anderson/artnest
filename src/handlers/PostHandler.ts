@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { createPostService } from "../services/PostService";
 import { Post, PostHandler, PostService } from '../interfaces/Post';
 
-const visibilityOptions: VisibilityStatus[] = ['public', 'private', 'friends-only'];
+const visibilityOptions: VisibilityStatus[] = ['public', 'private', 'all'];
 function isValidVisibility(value: any): value is VisibilityStatus {
     return visibilityOptions.includes(value);
 }
